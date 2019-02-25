@@ -95,6 +95,21 @@ info_gnome()
     fi
 }
 
+info_lxqt()
+{
+    if qtxdg-mat mimetype --help 2> /dev/null 1>&2; then
+        qtxdg-mat mimetype "$1" 2> /dev/null
+    else
+        info_generic "$1"
+    fi
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
+}
+
 info_generic()
 {
     if mimetype --version >/dev/null 2>&1; then
@@ -598,6 +613,10 @@ if [ "$action" = "info" ]; then
 
         gnome*|cinnamon|lxde|mate|xfce)
         info_gnome "$filename"
+        ;;
+
+        lxqt)
+        info_lxqt "$filename"
         ;;
 
         *)

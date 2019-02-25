@@ -234,6 +234,31 @@ open_flatpak()
     fi
 }
 
+open_lxqt()
+{
+    local client
+    local desktop
+    desktop=`xdg-mime query default "x-scheme-handler/mailto"`
+    client=`desktop_file_to_binary "$desktop"`
+    echo $client | grep -E 'thunderbird|icedove' > /dev/null 2>&1
+    if [ $? -eq 0 ] ; then
+        run_thunderbird "$client" "$1"
+    fi
+
+    if qtxdg-mat open --help 2>/dev/null 1>&2; then
+        DEBUG 1 "Running qtxdg-mat open \"$1\""
+        qtxdg-mat open "$1"
+    else
+        DEBUG 1 "Running open_generic \"$1\""
+        open_generic "$1"
+    fi
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
+}
 open_generic()
 {
     local client
@@ -484,7 +509,11 @@ case "$DE" in
     open_flatpak "$url"
     ;;
 
-    generic|lxqt|enlightenment)
+    lxqt)
+    open_lxqt "${mailto}"
+    ;;
+
+    generic|enlightenment)
     open_generic "${mailto}"
     ;;
 
